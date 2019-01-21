@@ -20,6 +20,9 @@ pikaPixel:
 pikaBlur:
 	./main -b pikachu.bmp copy.bmp
 
+pika90:
+	./main -r90 pikachu.bmp copy.bmp
+
 24:
 	./main -i simple24.bmp copy.bmp
 
