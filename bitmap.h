@@ -50,26 +50,18 @@ class Bitmap
 		int get_green(int, int);		// Get green pixel (x, y) value
 		int get_blue(int, int);			// Get blue pixel (x, y) value
 
-		void set_red(int, int, int);		// Set red pixel (x, y) value
-		void set_green(int, int, int);		// Set green pixel (x, y) value
-		void set_blue(int, int, int);		// Set blue pixel (x, y) value
+		void set_height(int);			// Set height of bitmap
+		void set_width(int);			// Set width of bitmap
+
+		int set_red(int, int, int);		// Set red pixel (x, y) value
+		int set_green(int, int, int);		// Set green pixel (x, y) value
+		int set_blue(int, int, int);		// Set blue pixel (x, y) value
 
 		void dump_pixels();			// **USED FOR TESTING**
 };
 
 
-void cellShade(Bitmap & b);
+void cellShade(Bitmap & b);			// Function prototypes
 void grayscale(Bitmap & b);
 void pixelate(Bitmap & b);
 void blur(Bitmap & b);
-/*
-void rot90(Bitmap& b);
-void rot180(Bitmap& b);
-void rot270(Bitmap& b);
-void flipv(Bitmap& b);
-void fliph(Bitmap& b);
-void flipd1(Bitmap& b);
-void flipd2(Bitmap& b);
-void scaleUp(Bitmap& b);
-void scaleDown(Bitmap& b);
-*/

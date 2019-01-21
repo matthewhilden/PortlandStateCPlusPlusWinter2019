@@ -2,6 +2,8 @@
 
 // Cell shading
 // Adjusts individual pixel component values to nearest value of {0, 128, 255}
+// INPUT: Takes a reference to a bitmap object as input
+// OUTPUT: Does not return
 void cellShade(Bitmap & b)
 {
 	int height = b.get_height();			// Get height
@@ -61,12 +63,14 @@ void cellShade(Bitmap & b)
 
 // Gray scale
 // Sets pixel component values to the average of the RGB components of the pixel
+// INPUT: Takes a refernce to a bitmap object as input
+// OUTPUT: Does not return
 void grayscale(Bitmap & b)
 {
 	int height = b.get_height();			// Get height
 	int width = b.get_width();			// Get width
 
-	for (int i = 0; i < height; i++)		
+	for (int i = 0; i < height; i++)		// Traverse all bitmap (x, y) pairs
 	{
 		for (int j = 0; j < width; j++)
 		{
@@ -81,6 +85,8 @@ void grayscale(Bitmap & b)
 
 // Pixelate 16x16
 // Averages the pixel component values across a 16x16 block of pixels
+// INPUT: Takes a reference to a bitmap object as input
+// OUTPUT: Does not return
 void pixelate(Bitmap & b)
 {
 	int height = b.get_height();
@@ -136,7 +142,9 @@ void pixelate(Bitmap & b)
 // Gaussian Blurring
 // Sets the pixel component values to the sum of the gaussian matrix
 // for the surrounding 5x5 block of pixels
-void blur(Bitmap& b)
+// INPUT: Takes a reference to a bitmap object as input
+// OUTPUT: Does not return
+void blur(Bitmap & b)
 {
 	int denominator = 256;
 
@@ -210,60 +218,17 @@ void blur(Bitmap& b)
 	}
 }
 
-/*
-void rot90(Bitmap& b)
-{
-
-}
-
-void rot180(Bitmap& b)
-{
-
-}
-
-void rot270(Bitmap& b)
-{
-
-}
-
-void flipv(Bitmap& b)
-{
-
-}
-
-void fliph(Bitmap& b)
-{
-
-}
-
-void flipd1(Bitmap& b)
-{
-
-}
-
-void flipd2(Bitmap& b)
-{
-
-}
-
-void scaleUp(Bitmap& b)
-{
-
-}
-
-void scaleDown(Bitmap& b)
-{
-
-}
-*/
-
 // Returns the height of the bitmap
+// INPUT: Does not take input parameters
+// OUTPUT: Returns an integer
 int Bitmap::get_height()
 {
 	return height;
 }
 
 // Returns the width of the bitmap
+// INPUT: Does not take input parameters
+// OUTPUT: Returns an integer
 int Bitmap::get_width()
 {
 	return width;
@@ -271,6 +236,8 @@ int Bitmap::get_width()
 
 // Get the red component of the pixel at (x, y)
 // Using a zero based index
+// INPUT: Takes two integers as input
+// OUTPUT: Returns an integer, -1 if get unsuccessful
 int Bitmap::get_red(int x, int y)
 {
 	if (x >= 0 && x < width && y >= 0 && y < height)				// Error check
@@ -298,6 +265,8 @@ int Bitmap::get_red(int x, int y)
 
 // Get the green component of the pixel at (x, y)
 // Using a zero based index
+// INPUT: Takes two integers as input
+// OUTPUT: Returns an integer, -1 if get unsuccessful
 int Bitmap::get_green(int x, int y)
 {
 	if (x >= 0 && x < width && y >= 0 && y < height)				// Error check
@@ -325,6 +294,8 @@ int Bitmap::get_green(int x, int y)
 
 // Get the blue component of the pixel at (x, y)
 // Using a zero based index
+// INPUT: Takes two integers as input
+// OUTPUT: Returns an integer, -1 if get unsuccessful
 int Bitmap::get_blue(int x, int y)
 {
 	if (x >= 0 && x < width && y >= 0 && y < height)				// Error check
@@ -352,7 +323,9 @@ int Bitmap::get_blue(int x, int y)
 
 // Set the red component of the pixel at (x, y) to the specified value
 // Using a zero based index
-void Bitmap::set_red(int x, int y, int value)
+// INPUT: Takes three integer values as input
+// OUTPUT: Returns an integer, -1 if set unsuccessful
+int Bitmap::set_red(int x, int y, int value)
 {
 	if (value <= 255 && value >= 0 && x >= 0 && x < width && y >= 0 && y < height)		// Error check
 	{
@@ -370,16 +343,19 @@ void Bitmap::set_red(int x, int y, int value)
 		location += redPixelOffset;						// Add offset for red component
 
 		_data.at(location) = value;						// Set value in vector
+		return value;
 	}
 	else
 	{
-		// Error
+		return -1;								// Denotes error
 	}
 }
 
 // Set the green component of the pixel at (x, y) to the specified value
 // Using a zero based index
-void Bitmap::set_green(int x, int y, int value)
+// INPUT: Takes three integers as input
+// OUTPUT: Returns an integer, -1 if set unsuccessful
+int Bitmap::set_green(int x, int y, int value)
 {
 	if (value <= 255 && value >= 0 && x >= 0 && x < width && y >= 0 && y < height)		// Error check
 	{
@@ -397,16 +373,19 @@ void Bitmap::set_green(int x, int y, int value)
 		location += greenPixelOffset;						// Add offset for green component
 
 		_data.at(location) = value;						// Set value in vector
+		return value;
 	}
 	else
 	{
-		// Error
+		return -1;								// Denotes error
 	}
 }
 
 // Set the blue component of the pixel at (x, y) to the specified value
 // Using a zero based index
-void Bitmap::set_blue(int x, int y, int value)
+// INPUT: Takes three integers as input
+// OUTPUT: Returns an integer, -1 if set unsuccessful
+int Bitmap::set_blue(int x, int y, int value)
 {
 	if (value <= 255 && value >= 0 && x >= 0 && x < width && y >= 0 && y < height)		// Error check
 	{
@@ -424,11 +403,28 @@ void Bitmap::set_blue(int x, int y, int value)
 		location += bluePixelOffset;						// Add offset for blue component
 
 		_data.at(location) = value;						// Set value in vector
+		return value;
 	}
 	else
 	{
-		// Error
+		return -1;								// Denotes error
 	}
+}
+
+// Set height of bitmap to input value
+// INPUT: Takes an integer value as input
+// OUTPUT: Does not return
+void Bitmap::set_height(int value)
+{
+	height = value;
+}
+
+// Set width of bitmap to input value
+// INPUT: Takes an integer value as input
+// OUTPUT: Does not return
+void Bitmap::set_width(int value)
+{
+	width = value;
 }
 
 // Dump Pixel contents to standard out
@@ -445,6 +441,8 @@ void Bitmap::dump_pixels()
 }
 
 // Extraction operator overloaded to read in bitmap data from a file
+// INPUT: Takes an input stream and a bitmap object
+// OUTPUT: Returns an input stream
 istream & operator >> (istream & in, Bitmap & b)
 {
 	char tag[TWO_BYTES];								// Read BM tag
@@ -680,6 +678,8 @@ istream & operator >> (istream & in, Bitmap & b)
 }
 
 // Insertion operator overloaded to write bitmap data to a file
+// INPUT: Takes an output stream and a bitmap object as inputs
+// OUTPUT: Returns an output stream
 ostream & operator << (ostream & out, const Bitmap & b)
 {
 	for (char c : b._headerOne)							// Write header one
