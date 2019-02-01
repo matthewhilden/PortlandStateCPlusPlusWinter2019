@@ -42,12 +42,13 @@ class Square
 		}
 
     		// Used for setting up the maze.
-    		// Set's the boarders for the square.
+    		// Set's the borders for the square.
     		void set_dir(bool val, int dir)
 		{
 			_walls[dir] = val;
 		}
 
+		// Set the height of the room
     		void set_height(int height)
 		{
 			_height = height;
@@ -84,20 +85,20 @@ class Square
 		}
 
 		// Get the row field
-		int get_row()
+		int get_row() const
 		{
 			return _row;
 		}
 
 		// Get the col field
-		int get_col()
+		int get_col() const
 		{
 			return _col;
 		}
 
 		// Get the (minimum) distance from the starting position
 		// **USED IN THE DIJKSTRA ALGORITHM**
-		int get_distance()
+		int get_distance() const
 		{
 			return _distance;
 		}

@@ -139,7 +139,6 @@ path solve_dfs(Maze & m, int rows, int cols)
 						points.push(rightPoint);
 						rightSquare->set_parent(currentSquare);
 					}
-	
 				}
 	
 				if (currentSquare->can_go_dir(DOWN))
@@ -232,7 +231,6 @@ path solve_bfs(Maze& m, int rows, int cols)
 						points.push(rightPoint);
 						rightSquare->set_parent(currentSquare);
 					}
-	
 				}
 	
 				if (currentSquare->can_go_dir(DOWN))

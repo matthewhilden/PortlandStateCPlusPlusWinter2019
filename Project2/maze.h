@@ -13,7 +13,7 @@ class Maze
 		vector<vector<Square>> _squares;
 		int _rows;
 		int _cols;
-		void gen_dfs(vector<vector<bool>>& seen, int r, int c);
+		void gen_dfs(vector<vector<bool>> & seen, int r, int c);
 		void delete_walls(double frac);
 		void set_heights();
 		void gen_random_maze();
@@ -35,12 +35,12 @@ class Maze
 		/**
 	     	* print out the maze in a human readable format
 	     	*/
-	    	void print_maze(ostream& out, bool weighted) const;
+	    	void print_maze(ostream & out, bool weighted) const;
 
 	    	/**
      		* print the maze while showing the path
      		*/
-    		void print_maze_with_path(ostream& out, const path& path, bool weighted, bool tour) const;
+    		void print_maze_with_path(ostream & out, const path & path, bool weighted, bool tour) const;
 
 
     		/**
@@ -92,8 +92,8 @@ class Maze
      		*/
     		int cost(int r, int c, int dir) const
     		{
-        		auto [dr,dc] = moveIn(dir);
-       		 	return abs(_squares[r][c].height() - _squares[r+dr][c+dc].height());
+        		auto [dr, dc] = moveIn(dir);
+       		 	return abs(_squares[r][c].height() - _squares[r + dr][c + dc].height());
     		}
 
 		// Return the square at the specified row and column
@@ -106,17 +106,17 @@ class Maze
 /**
  * @return if p is a valid path from (0,0) to (r-1,c-1) in m
  */
-bool valid_solution(const Maze& m, const path& p);
+bool valid_solution(const Maze & m, const path & p);
 
 /**
  * @return if p is a valid courners tour in m
  */
-bool valid_tour(const Maze& m, const path& p);
+bool valid_tour(const Maze & m, const path & p);
 
 /**
  * @return if p is a valid path in m
  */
-bool valid_path(const Maze& m, const path& p);
+bool valid_path(const Maze & m, const path & p);
 
 
 #endif // MAZE_H

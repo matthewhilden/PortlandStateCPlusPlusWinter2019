@@ -19,37 +19,37 @@ const int FAIL  = 4;
 
 inline int opposite(const int dir)
 {
-    switch(dir)
-    {
-        case UP:    return DOWN;
-        case LEFT:  return RIGHT;
-        case DOWN:  return UP;
-        case RIGHT: return LEFT;
-    }
+	switch(dir)
+    	{
+        	case UP:    return DOWN;
+        	case LEFT:  return RIGHT;
+        	case DOWN:  return UP;
+        	case RIGHT: return LEFT;
+    	}
 }
 
 inline point moveIn(const int dir)
 {
-    switch(dir)
-    {
-        case UP:    return make_pair(-1,0);
-        case LEFT:  return make_pair(0,-1);
-        case DOWN:  return make_pair(1,0);
-        case RIGHT: return make_pair(0,1);
-    }
+	switch(dir)
+    	{
+        	case UP:    return make_pair(-1,0);
+        	case LEFT:  return make_pair(0,-1);
+        	case DOWN:  return make_pair(1,0);
+        	case RIGHT: return make_pair(0,1);
+    	}
 }
 
 inline int direction(const point& p1, const point& p2)
 {
-    if(p1.first  - p2.first  == 1)  return UP;
-    if(p1.first  - p2.first  == -1) return DOWN;
-    if(p1.second - p2.second == 1)  return LEFT;
-    if(p1.second - p2.second == -1) return RIGHT;
+	if(p1.first  - p2.first  == 1)  return UP;
+    	if(p1.first  - p2.first  == -1) return DOWN;
+    	if(p1.second - p2.second == 1)  return LEFT;
+    	if(p1.second - p2.second == -1) return RIGHT;
 }
 
 inline point operator+(const point& l, const point& r)
 {
-    return make_pair(l.first+r.first, l.second+r.second);
+	return make_pair(l.first+r.first, l.second+r.second);
 }
 
 #endif // PATH_H
