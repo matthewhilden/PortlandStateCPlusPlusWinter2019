@@ -59,6 +59,8 @@ void Maze::set_heights()
         for(int c = 0; c < _cols; c++)
         {
             _squares[r][c].set_height(rand()%10);
+	    _squares[r][c].set_row(r);
+	    _squares[r][c].set_col(c);
         }
     }
 }

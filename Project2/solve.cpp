@@ -83,70 +83,90 @@ int main(int argc, char** argv)
 // OUTPUT: Returns a list of points representing the path of the solution
 path solve_dfs(Maze & m, int rows, int cols)
 {
-	map<point, point> childToParent;					// Mapping a point to its parent point in the maze
-	stack<point> points;							// to maintain information for the path (solution)
-	Square * s;
+	point startPoint = make_pair(0, 0);
+	point endPoint = make_pair(rows - 1, cols - 1);
 
-	point start = make_pair(0, 0);
-	point finish = make_pair(rows - 1, cols - 1);
-	Square * destination = m.get_square(finish);
-
-	points.push(start);							// Require pushing the initial square in the maze to
-										// the stack so that the while condiditonal is satisfied
+	Square * currentSquare = m.get_square(startPoint);
+	Square * endSquare = m.get_square(endPoint);
 	
-	while (!points.empty() && !destination->visited())			// Exhaustive search; traverse until destination
-	{
-		point current = points.top();
+	stack<point> points;
+	points.push(startPoint);
+	
+	while (!points.empty() && !endSquare->visited())						// The second conditional ensures we do not continue
+	{												// the DFS algorithm after reaching the end square
+		point currentPoint = points.top();
 		points.pop();
 
-		s = m.get_square(current);
+		currentSquare = m.get_square(currentPoint);
 
-		if (!s->visited())						// A square may only be visited one time through the traversal
+		if (!currentSquare->visited())								// Do not want to process the same square twice
 		{
-			s->set_visited();
-
-			if (s->can_go_dir(LEFT))				// Check all possible directions for an adjacent square
+			currentSquare->set_visited();
+			
+			if (currentSquare != endSquare)							// If the end square is found, we can stop adding to the stack
 			{
-				point next = current + moveIn(LEFT);
-				points.push(next);
-				childToParent.insert({next, current});
-			}
+				if (currentSquare->can_go_dir(LEFT))
+				{
+					point leftPoint = currentPoint + moveIn(LEFT);
+					Square * leftSquare = m.get_square(leftPoint);
 
-			if (s->can_go_dir(UP))
-			{
-				point next = current + moveIn(UP);
-				points.push(next);
-				childToParent.insert({next, current});
-			}
+					if (!leftSquare->visited())					// If the adjacent square is already visited, we have already added
+					{								// the square to the stack, and would be duplicate work
+						points.push(leftPoint);
+						leftSquare->set_parent(currentSquare);
+					}
+				}
 
-			if (s->can_go_dir(RIGHT))
-			{
-				point next = current + moveIn(RIGHT);
-				points.push(next);
-				childToParent.insert({next, current});
-			}
+				if (currentSquare->can_go_dir(UP))
+				{
+					point upPoint = currentPoint + moveIn(UP);
+					Square * upSquare = m.get_square(upPoint);
 
-			if (s->can_go_dir(DOWN))
-			{
-				point next = current + moveIn(DOWN);
-				points.push(next);
-				childToParent.insert({next, current});
+					if (!upSquare->visited())
+					{
+						points.push(upPoint);
+						upSquare->set_parent(currentSquare);
+					}
+				}
+	
+				if (currentSquare->can_go_dir(RIGHT))
+				{
+					point rightPoint = currentPoint + moveIn(RIGHT);
+					Square * rightSquare = m.get_square(rightPoint);
+
+					if(!rightSquare->visited())
+					{
+						points.push(rightPoint);
+						rightSquare->set_parent(currentSquare);
+					}
+	
+				}
+	
+				if (currentSquare->can_go_dir(DOWN))
+				{
+					point downPoint = currentPoint + moveIn(DOWN);
+					Square * downSquare = m.get_square(downPoint);
+
+					if (!downSquare->visited())
+					{
+						points.push(downPoint);
+						downSquare->set_parent(currentSquare);
+					}
+				}
 			}
 		}
 	}
-
-	list<point> path;
-	point current = make_pair(rows - 1, cols - 1);
-	path.push_front(current);
-	current = childToParent[current];
 	
-	while (current != start)						// Construct the list of points of the solution path from the
-	{									// information regarding the path saved in the map of points
-		path.push_front(current);
-		current = childToParent[current];
+	list<point> path;
+	Square * square = m.get_square(endPoint);
+
+	while (square->get_parent() != NULL)								// The initial square in the maze does not have a parent
+	{												// so we know when we are at the beginning of the maze
+		path.push_front(make_pair(square->get_row(), square->get_col()));
+		square = square->get_parent();
 	}
 
-	path.push_front(start);
+	path.push_front(startPoint);
 	return path;
 }
 
@@ -156,76 +176,116 @@ path solve_dfs(Maze & m, int rows, int cols)
 // OUTPUT: Returns a list of points representing the path of the solution
 path solve_bfs(Maze& m, int rows, int cols)
 {
-	map<point, point> childToParent;					// Mapping a point to its parent point in the maze
-	queue<point> points;							// to maintain information for the path (solution)
-	Square * s;
+	point startPoint = make_pair(0, 0);
+	point endPoint = make_pair(rows - 1, cols - 1);
 
-	point start = make_pair(0, 0);
-	point finish = make_pair(rows - 1, cols - 1);
-	Square * destination = m.get_square(finish);
-
-	points.push(start);							// Require pushing the initial square in the maze to
-										// the stack so that the while condiditonal is satisfied
-
-	while (!points.empty() && !destination->visited())			// Exhaustive search; traverse until destination
-	{
-		point current = points.front();
+	Square * currentSquare = m.get_square(startPoint);
+	Square * endSquare = m.get_square(endPoint);
+	
+	queue<point> points;
+	points.push(startPoint);
+	
+	while (!points.empty() && !endSquare->visited())						// The second conditional ensures we do not continue
+	{												// the BFS algorithm after reaching the end square
+		point currentPoint = points.front();
 		points.pop();
 
-		s = m.get_square(current);
+		currentSquare = m.get_square(currentPoint);
 
-		if (!s->visited())						// A square may only be visited one time through the traversal
+		if (!currentSquare->visited())								// Do not want to process the same square twice
 		{
-			s->set_visited();
-
-			if (s->can_go_dir(LEFT))				// Check all possible directions for an adjacent square
+			currentSquare->set_visited();
+			
+			if (currentSquare != endSquare)							// If the end square is found, we can stop adding to the queue
 			{
-				point next = current + moveIn(LEFT);
-				points.push(next);
-				childToParent.insert({next, current});
-			}
+				if (currentSquare->can_go_dir(LEFT))
+				{
+					point leftPoint = currentPoint + moveIn(LEFT);
+					Square * leftSquare = m.get_square(leftPoint);
 
-			if (s->can_go_dir(UP))
-			{
-				point next = current + moveIn(UP);
-				points.push(next);
-				childToParent.insert({next, current});
-			}
+					if (!leftSquare->visited())					// If the adjacent square is already visited, we have already added
+					{								// the square to the queue, and would be duplicate work
+						points.push(leftPoint);
+						leftSquare->set_parent(currentSquare);
+					}
+				}
 
-			if (s->can_go_dir(RIGHT))
-			{
-				point next = current + moveIn(RIGHT);
-				points.push(next);
-				childToParent.insert({next, current});
-			}
+				if (currentSquare->can_go_dir(UP))
+				{
+					point upPoint = currentPoint + moveIn(UP);
+					Square * upSquare = m.get_square(upPoint);
 
-			if (s->can_go_dir(DOWN))
-			{
-				point next = current + moveIn(DOWN);
-				points.push(next);
-				childToParent.insert({next, current});
+					if (!upSquare->visited())
+					{
+						points.push(upPoint);
+						upSquare->set_parent(currentSquare);
+					}
+				}
+	
+				if (currentSquare->can_go_dir(RIGHT))
+				{
+					point rightPoint = currentPoint + moveIn(RIGHT);
+					Square * rightSquare = m.get_square(rightPoint);
+
+					if(!rightSquare->visited())
+					{
+						points.push(rightPoint);
+						rightSquare->set_parent(currentSquare);
+					}
+	
+				}
+	
+				if (currentSquare->can_go_dir(DOWN))
+				{
+					point downPoint = currentPoint + moveIn(DOWN);
+					Square * downSquare = m.get_square(downPoint);
+
+					if (!downSquare->visited())
+					{
+						points.push(downPoint);
+						downSquare->set_parent(currentSquare);
+					}
+				}
 			}
 		}
 	}
-
-	list<point> path;
-	point current = make_pair(rows - 1, cols - 1);
-	path.push_front(current);
-	current = childToParent[current];
 	
-	while (current != start)						// Construct the list of points of the solution path from the
-	{									// information regarding the path saved in the map of points
-		path.push_front(current);
-		current = childToParent[current];
+	list<point> path;
+	Square * square = m.get_square(endPoint);
+
+	while (square->get_parent() != NULL)								// The initial square in the maze does not have a parent
+	{												// so a NULL check is sufficient
+		path.push_front(make_pair(square->get_row(), square->get_col()));
+		square = square->get_parent();
 	}
 
-	path.push_front(start);
+	path.push_front(startPoint);
 	return path;
 }
 
+// Construct the list of points of the solution path from the
+// Implementation of Dijkstra's algorithm for finding the shortest path through the maze
+// Dijkstra's algorithm finds the shortest path between the starting square and all other squares in the maze
+// using a modified BFS algorithm. The algorithm selects an unvisited square and sets all adjacent squares'
+// distance field to the calculated values. If the calculated distance to the adjacent square is less than its
+// current distance field, the value is overridden with the smaller value. This algorithm is exhausted until all squares
+// in the maze are visited.
 path solve_dijkstra(Maze& m, int rows, int cols)
 {
-    return list<point>();
+	// 1. Add all squares to a set
+	// 2. For each square in the set, update distances of all adjacent squares, update parent
+	// 3. Trace backwards using parent node information to construct list
+	
+	for (int i = 0; i < rows; i++)
+	{
+		for (int j = 0; j < cols; j++)
+		{
+		
+		}
+	}
+
+
+    	return list<point>();
 }
 
 path solve_tour(Maze& m, int rows, int cols)

@@ -96,14 +96,6 @@ class Maze
        		 	return abs(_squares[r][c].height() - _squares[r+dr][c+dc].height());
     		}
 
-		/**
-		 *  Set the visited field for the desired square
-		 */
-		void set_visited(int r, int c)
-		{
-			_squares[r][c].set_visited();
-		}
-
 		// Return the square at the specified row and column
 		Square * get_square(point p)
 		{
