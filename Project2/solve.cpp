@@ -250,9 +250,6 @@ struct orderByDistance
 {
 	bool operator() (Square * s1, Square * s2)
 	{
-		//std::cout << "s1=(" << s1->get_row() << ", " << s1->get_col() << ") d=" << s1->get_distance() << endl;
-		//std::cout << "s2=(" << s2->get_row() << ", " << s2->get_col() << ") d=" << s2->get_distance() << endl << endl;
-
 		if (s1->get_distance() > s2->get_distance())
 		{
 			return true;
