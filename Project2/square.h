@@ -18,23 +18,25 @@ class Square
 		int _row;			// Row in maze
 		int _col;			// Column in maze
     		int _distance;			// Minimum distance from start to square, -1 default value (unvisited)
+		int _shortestDirection;		// Which direction is the closest adjacent square (0=UP, 1=LEFT, 2=DOWN, 3=RIGHT, 4=FAIL), -1 default value
     		int _height;			// Height of room
 		Square * _parent;		// Pointer to previous square (in path)
+
 	public:
 		
     		//The default square is completely isolated.
-    		Square() : _walls(4,false), _visited(false), _row(0), _col(0), _distance(-1), _height(0), _parent(NULL)
-		{
-		}
+    		Square() : _walls(4,false), _visited(false), _row(0), _col(0),
+		           _distance(-1), _shortestDirection(-1), _height(0), _parent(NULL) {}
 
-    		Square(int height) : _walls(4,false), _visited(false), _row(0), _col(0), _distance(-1), _height(height), _parent(NULL)
-		{
-		}
+		// Secondary constructor taking a height parameter for a room
+    		Square(int height) : _walls(4,false), _visited(false), _row(0), _col(0),
+		                     _distance(-1), _shortestDirection(-1), _height(height), _parent(NULL) {}
 
-    		Square(const Square & s) : _walls(s._walls), _visited(s._visited), _row(s._row), _col(s._col), _distance(s._distance), _height(s._height), _parent(s._parent)
-		{
-		}
+		// Copy constructor
+    		Square(const Square & s) : _walls(s._walls), _visited(s._visited), _row(s._row), _col(s._col),
+		                           _distance(s._distance), _shortestDirection(-1), _height(s._height), _parent(s._parent) {}
 
+		// Deconstructor to free dynamic memory
 		~Square()
 		{
 			_parent = NULL;
@@ -117,11 +119,13 @@ class Square
 			return _height;
 		}
 
+		// Return pointer to parent (path) from current square
 		Square * get_parent()
 		{
 			return _parent;
 		}
 
+		// Set previous (parent) square from current square
 		void set_parent(Square * parent)
 		{
 			_parent = parent;

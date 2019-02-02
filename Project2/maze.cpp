@@ -29,6 +29,7 @@ Maze::Maze(int rows, int cols) : _rows(rows), _cols(cols), _squares(rows, vector
     	// every time we run the program
     	srand(unsigned(time(0)));
     	gen_random_maze();
+	_squares[0][0].set_distance(0);		// Update distance for dij algorithm
 }
 
 /**
