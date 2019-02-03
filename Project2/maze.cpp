@@ -59,9 +59,9 @@ void Maze::set_heights()
     	{
         	for(int c = 0; c < _cols; c++)
         	{
-            	_squares[r][c].set_height(rand()%10);
-	    	_squares[r][c].set_row(r);			// Updated the Square structure to hold row/col data
-	    	_squares[r][c].set_col(c);
+ 	           	_squares[r][c].set_height(rand() % 10);
+		    	_squares[r][c].set_row(r);			// Updated the Square structure to hold row/col data
+	    		_squares[r][c].set_col(c);
         	}
     	}
 }
@@ -73,23 +73,23 @@ void Maze::set_heights()
  */
 void Maze::delete_walls(double frac)
 {
-	for(int i = 0; i < _rows*_cols*frac; i++)
+	for(int i = 0; i < _rows *_cols * frac; i++)
     	{
 		//keep going until we actually delete something
         	bool deleted = false;
         	while(!deleted)
         	{
-			int r = rand()%(_rows-2)+1;
-            		int c = rand()%(_cols-2)+1;
-            		int dir = rand()%4;
+			int r = rand() % (_rows - 2) + 1;
+            		int c = rand() % (_cols - 2) + 1;
+            		int dir = rand() % 4;
 
 	            	// did we actually delete anything?
 	        	deleted = !_squares[r][c].can_go_dir(dir);
 
-		        auto [dr,dc] = moveIn(dir);
+		        auto [dr, dc] = moveIn(dir);
 	
 	            	_squares[r][c].set_dir(true, dir);
-			_squares[r+dr][c+dc].set_dir(true, opposite(dir));
+			_squares[r + dr][c + dc].set_dir(true, opposite(dir));
         	}
     	}
 }
@@ -105,7 +105,7 @@ void Maze::delete_walls(double frac)
  * @param c the current column that we're on
  *
  */
-void Maze::gen_dfs(vector<vector<bool> >& seen, int r, int c)
+void Maze::gen_dfs(vector<vector<bool>> & seen, int r, int c)
 {
 	seen[r][c] = true;
 
@@ -117,19 +117,19 @@ void Maze::gen_dfs(vector<vector<bool> >& seen, int r, int c)
    	// we use order to randomly permute the directions.
     	for(int i = 0; i < 4; i++)
     	{
-        	auto [dr,dc] = moveIn(order[i]);
+        	auto [dr, dc] = moveIn(order[i]);
 
 
         	//if we are within the bounds of our maze
         	//AND we haven't visited the square above us yet.
-        	if(r+dr >= 0 && r+dr < _rows && c+dc >= 0 && c+dc < _cols && !seen[r+dr][c+dc])
+        	if(r + dr >= 0 && r + dr < _rows && c + dc >= 0 && c + dc < _cols && !seen[r + dr][c + dc])
         	{
             		//kill the wall between this square and the square above us
             		_squares[r][c].set_dir(true, order[i]);
-            		_squares[r+dr][c+dc].set_dir(true, opposite(order[i]));
+            		_squares[r + dr][c + dc].set_dir(true, opposite(order[i]));
 
             		//continue from the square above us.
-            		gen_dfs(seen, r+dr, c+dc);
+            		gen_dfs(seen, r + dr, c + dc);
         	}
     	}
 }
@@ -145,7 +145,7 @@ void Maze::gen_dfs(vector<vector<bool> >& seen, int r, int c)
  *
  * @param weighted print out the heights of the rooms
  */
-void Maze::print_maze(ostream& out, bool weighted) const
+void Maze::print_maze(ostream & out, bool weighted) const
 {
 	//print the top boarder of the maze
     	out << us;
@@ -209,7 +209,7 @@ void Maze::print_maze(ostream& out, bool weighted) const
  * @param weighted print out the heights
  * @param tour are we checking the path or the tour
  */
-void Maze::print_maze_with_path(ostream& out, const list<point>& path, bool weighted, bool tour) const
+void Maze::print_maze_with_path(ostream & out, const list<point> & path, bool weighted, bool tour, point startPoint, point endPoint) const
 {
 	//keep track of what spaces are on the board
     	vector<vector<bool>> board(_rows, vector<bool>(_cols, false));
@@ -220,16 +220,16 @@ void Maze::print_maze_with_path(ostream& out, const list<point>& path, bool weig
     	// get all of the heights in the path
     	if(!path.empty())
    	{
-        	for(auto [r,c] : path)
+        	for(auto [r, c] : path)
         	{
             		board[r][c] = true;
             		heights.push_back(_squares[r][c].height());
         	}
 
         	// get the total cost of the path
-        	for(int i = 0; i < heights.size()-1; i++)
+        	for(int i = 0; i < heights.size() - 1; i++)
         	{
-            		weight += abs(heights[i] - heights[i+1]);
+            		weight += abs(heights[i] - heights[i + 1]);
         	}
     	}
 
@@ -292,7 +292,7 @@ void Maze::print_maze_with_path(ostream& out, const list<point>& path, bool weig
     	out << "total time: " << weight << endl;
 
     	// check to see if it's a valid path
-    	if((!tour && valid_solution(*this,path)) || (tour && valid_tour(*this,path)))
+    	if((!tour && valid_solution(* this, path, startPoint, endPoint)) || (tour && valid_tour(* this, path, startPoint, endPoint)))
 	{
         	out << "valid" << endl;
 	}
@@ -307,13 +307,13 @@ void Maze::print_maze_with_path(ostream& out, const list<point>& path, bool weig
  * Check to see if it's a valid path through the maze.
  *
  * if we start at (0,0)
- * and end at (rows-1, columns-1)
+ * and end at endPoint
  * and it's a valid path
  */
-bool valid_solution(const Maze& m, const list<point>& p)
+bool valid_solution(const Maze & m, const list<point> & p, point & startPoint, point & endPoint)
 {
-	return !p.empty() && p.front() == make_pair(0,0) 
-	              	  && p.back() == make_pair(m.rows()-1, m.columns()-1)
+	return !p.empty() && p.front() == startPoint 
+	              	  && p.back() == endPoint
 		      	  && valid_path(m, p);
 }
 
@@ -324,7 +324,7 @@ bool valid_solution(const Maze& m, const list<point>& p)
  * and we start and end on rows/2 and columns/2
  * and it's a valid path
  */
-bool valid_tour(const Maze& m, const list<point>& p)
+bool valid_tour(const Maze & m, const list<point> & p, point & startPoint, point & endPoint)
 {
 	// if our path contains (0,0) (0,columns-1) (rows-1,0) (rows-1,columns-1)
     	// and we start and end on rows/2 and columns/2
@@ -333,8 +333,8 @@ bool valid_tour(const Maze& m, const list<point>& p)
 		          && find(p.begin(), p.end(), make_pair(0, m.columns()-1)) != p.end()
 			  && find(p.begin(), p.end(), make_pair(m.rows()-1, 0)) != p.end()
 			  && find(p.begin(), p.end(), make_pair(m.rows()-1, m.columns()-1)) != p.end()
-			  && p.front() == make_pair(m.rows()/2,m.columns()/2)
-			  && p.back() == make_pair(m.rows()/2,m.columns()/2)
+			  && p.front() == make_pair(m.rows() / 2, m.columns() / 2)
+			  && p.back() == make_pair(m.rows() / 2, m.columns() / 2)
 			  && valid_path(m, p);
 }
 
@@ -347,7 +347,7 @@ bool valid_tour(const Maze& m, const list<point>& p)
  * and every node is adjacent to the previous one,
  * and we can travel between each room.
  */
-bool valid_path(const Maze& m, const list<point>& p)
+bool valid_path(const Maze & m, const list<point> & p)
 {
 	if(p.empty())
     	{

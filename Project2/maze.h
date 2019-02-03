@@ -40,7 +40,7 @@ class Maze
 	    	/**
      		* print the maze while showing the path
      		*/
-    		void print_maze_with_path(ostream & out, const path & path, bool weighted, bool tour) const;
+    		void print_maze_with_path(ostream & out, const path & path, bool weighted, bool tour, point startPoint, point endPoint) const;
 
 
     		/**
@@ -104,14 +104,14 @@ class Maze
 };
 
 /**
- * @return if p is a valid path from (0,0) to (r-1,c-1) in m
+ * @return if p is a valid path from (0,0) to specified end point in maze
  */
-bool valid_solution(const Maze & m, const path & p);
+bool valid_solution(const Maze & m, const path & p, point & startPoint, point & endPoint);
 
 /**
  * @return if p is a valid courners tour in m
  */
-bool valid_tour(const Maze & m, const path & p);
+bool valid_tour(const Maze & m, const path & p, point & startPoint, point & endPoint);
 
 /**
  * @return if p is a valid path in m
