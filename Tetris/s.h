@@ -11,4 +11,5 @@ class s : public piece
         s();
         ~s();
         void rotate();
+        void rotate_reverse();
 };

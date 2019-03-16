@@ -14,20 +14,20 @@
 
 // Default constructor
 // Generates a random game piece for current and next, places the piece at the start
-game::game() : _paused(false), _gameOver(false), _level(0), _linesCleared(0), _score(0), _hiscore(10000)
+game::game() : _paused(false), _gameOver(true), _level(0), _linesCleared(0), _score(0), _hiscore(10000)
 {
     _currentPiece = generate_piece();
-    _nextPiece = generate_piece(_currentPiece);
-
-    _b.place_piece_at_start(_currentPiece);
+    _nextPiece = generate_piece();
 }
 
 // Destructor
 // Frees dynamic memory used in pointers
 game::~game()
 {
-    _currentPiece = nullptr; delete _currentPiece;
-    _nextPiece = nullptr; delete _nextPiece;
+    _currentPiece = nullptr;
+    _nextPiece = nullptr;
+    delete _currentPiece;
+    delete _nextPiece;
 }
 
 // Get current game level
@@ -75,12 +75,12 @@ void game::reset_game()
     _gameOver = false;
     _paused = false;
 
-    if (_score > _hiscore)
+    if (_score > _hiscore)      // Update hiscore
     {
         _hiscore = _score;
     }
 
-    _level = 0;
+    _level = 0;                 // Reset counters
     _linesCleared = 0;
     _score = 0;
 }
@@ -88,10 +88,9 @@ void game::reset_game()
 // Toggle pause flag
 // Flips the boolean value of the paused field
 // Returns the new boolean value
-bool game::toggle_pause()
+void game::toggle_pause()
 {
     _paused = !_paused;
-    return _paused;
 }
 
 // Check if game is paused
@@ -112,7 +111,8 @@ int game::get_board_position(int row, int col)
 // Checks if the current piece resulted in filled rows,
 // resulting in row clears and shifting board down.
 // Updates score and level based on Original Nintendo scoring system.
-void game::check_clear_rows()
+// Return false if locking piece above board boundary, true otherwise.
+bool game::check_clear_rows()
 {
     int cleared = 0;
 
@@ -123,7 +123,14 @@ void game::check_clear_rows()
     rows.insert(_currentPiece->get_three().second);
     rows.insert(_currentPiece->get_four().second);
 
-    for (std::set<int>::iterator iter = rows.begin(); iter != rows.end(); ++iter)
+    std::set<int>::iterator iter = rows.begin();
+
+    if (*iter < 0)
+    {
+        return false;
+    }
+
+    for (; iter != rows.end(); ++iter)
     {
         int current = *iter;
         if (_b.check_row_filled(current))
@@ -133,33 +140,48 @@ void game::check_clear_rows()
         }
     }
 
-    if (cleared == 1)
-    {
-        _score += (40 * (_level + 1));
-    }
-    else if (cleared == 2)
-    {
-        _score += (100 * (_level + 1));
-    }
-    else if (cleared == 3)
-    {
-        _score += (300 * (_level + 1));
-    }
-    else if (cleared == 4)
-    {
-        _score += (1200 * (_level + 1));
-    }
+    update_score_level(cleared);
 
-    _linesCleared += cleared;
-    _level = _linesCleared / 10;
+    return true;
+}
+
+// Update the game score and level based on input
+void game::update_score_level(int linesCleared)
+{
+    if (linesCleared != 0)
+    {
+        if (linesCleared == 1)
+        {
+            _score += (40 * (_level + 1));
+        }
+        else if (linesCleared == 2)
+        {
+            _score += (100 * (_level + 1));
+        }
+        else if (linesCleared == 3)
+        {
+            _score += (300 * (_level + 1));
+        }
+        else if (linesCleared == 4)
+        {
+            _score += (1200 * (_level + 1));
+        }
+
+        _linesCleared += linesCleared;
+        _level = _linesCleared / 10;
+    }
 }
 
 // Locks the current piece and then swaps to the next piece in the queue,
 // also generates a new next piece
-// Returns true if next piece does not cause collision (game can continue), false otherwise
-void game::lock_piece_and_replace()
+// Returns false if endgame condition is met, true otherwise (game continues)
+bool game::lock_piece_and_replace()
 {
-    check_clear_rows();
+    if (!check_clear_rows())
+    {
+        _gameOver = true;   // End game condition
+        return false;
+    }
 
     _currentPiece = _nextPiece;
     _nextPiece = generate_piece(_currentPiece);
@@ -167,14 +189,10 @@ void game::lock_piece_and_replace()
     if(!_b.place_piece_at_start(_currentPiece))
     {
         _gameOver = true;   // End game condition
+        return false;
     }
-}
 
-// Get board position at x-y coordinate
-// Retruns true if board is filled at position, false otherwise
-bool game::check_board_position_filled(std::pair<int, int> & point)
-{
-    return _b.check_position_filled(point);
+    return true;
 }
 
 // Check if the current piece can move (validly) in the specified direction.
@@ -247,7 +265,7 @@ bool game::check_movement_valid(int direction)
             }
         }
 
-            if (_b.check_position_filled(updatedPointFour))
+        if (_b.check_position_filled(updatedPointFour))
         {
             if (!(updatedPointFour == pointOne || updatedPointFour == pointTwo || updatedPointFour == pointThree))
             {
@@ -269,12 +287,12 @@ bool game::check_movement_valid(int direction)
 // Returns true if the rotation is valid, false otherwise.
 bool game::check_rotation_valid()
 {
-    std::pair<int, int> pointOne = _currentPiece->get_one();		// Get the components to check against the new point
+    std::pair<int, int> pointOne = _currentPiece->get_one();            // Get the components to check against the new point
     std::pair<int, int> pointTwo = _currentPiece->get_two();
     std::pair<int, int> pointThree = _currentPiece->get_three();
     std::pair<int, int> pointFour = _currentPiece->get_four();
 
-    _currentPiece->rotate();						// Perform rotation (will rotate back on collision)
+    _currentPiece->rotate();                                            // Perform rotation (will rotate back on collision)
 
     std::pair<int, int> updatedPointOne = _currentPiece->get_one();		// Get updated components after rotation
     std::pair<int, int> updatedPointTwo = _currentPiece->get_two();
@@ -289,9 +307,7 @@ bool game::check_rotation_valid()
         {
             if (!(updatedPointOne == pointOne || updatedPointOne == pointTwo || updatedPointOne == pointThree || updatedPointOne == pointFour))
             {
-                _currentPiece->rotate();	// Rotate back to original position
-                _currentPiece->rotate();
-                _currentPiece->rotate();
+                _currentPiece->rotate_reverse();                        // Rotate back to original position
 
                 return false;
             }
@@ -301,9 +317,7 @@ bool game::check_rotation_valid()
         {
             if (!(updatedPointTwo == pointOne || updatedPointTwo == pointTwo || updatedPointTwo == pointThree || updatedPointTwo == pointFour))
             {
-                _currentPiece->rotate();	// Rotate back to original position
-                _currentPiece->rotate();
-                _currentPiece->rotate();
+                _currentPiece->rotate_reverse();                        // Rotate back to original position
 
                 return false;
             }
@@ -313,9 +327,7 @@ bool game::check_rotation_valid()
         {
             if (!(updatedPointThree == pointOne || updatedPointThree == pointTwo || updatedPointThree == pointThree || updatedPointThree == pointFour))
             {
-                _currentPiece->rotate();	// Rotate back to original position
-                _currentPiece->rotate();
-                _currentPiece->rotate();
+                _currentPiece->rotate_reverse();                        // Rotate back to original position
 
                 return false;
             }
@@ -325,24 +337,18 @@ bool game::check_rotation_valid()
         {
             if (!(updatedPointFour == pointOne || updatedPointFour == pointTwo || updatedPointFour == pointThree || updatedPointFour == pointFour))
             {
-                _currentPiece->rotate();	// Rotate back to original position
-                _currentPiece->rotate();
-                _currentPiece->rotate();
+                _currentPiece->rotate_reverse();                        // Rotate back to original position
 
                 return false;
             }
         }
 
-        _currentPiece->rotate();	// Rotate back to original position
-        _currentPiece->rotate();
-        _currentPiece->rotate();
+        _currentPiece->rotate_reverse();                                // Rotate back to original position
 
         return true;
     }
 
-    _currentPiece->rotate();	// Rotate back to original position
-    _currentPiece->rotate();
-    _currentPiece->rotate();
+    _currentPiece->rotate_reverse();                                    // Rotate back to original position
 
     return false;
 }

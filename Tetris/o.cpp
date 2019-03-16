@@ -27,8 +27,13 @@ o::~o()
 }
 
 // Rotates the piece 90 degrees clockwise around the pivot point
-// For a square piece, the rotation does nothing
+// For a square tetromino, the rotation does nothing
 void o::rotate()
 {
-    // Do nothing
+}
+
+// Rotates the piece 90 degrees counterclockwise around the pivot point
+// For a square tetromino, the rotation does nothing
+void o::rotate_reverse()
+{
 }

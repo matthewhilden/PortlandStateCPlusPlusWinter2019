@@ -82,3 +82,60 @@ void i::rotate()
         _rotation = 0;
     }
 }
+
+// Rotate the piece 90 degrees counterclockwise around the pivot point
+void i::rotate_reverse()
+{
+    if (_rotation == 0)
+    {
+        _one.first = _one.first + 1;
+        _one.second = _one.second + 1;
+
+        _three.first = _three.first - 1;
+        _three.second = _three.second - 1;
+
+        _four.first = _four.first - 2;
+        _four.second = _four.second - 2;
+
+        _rotation = 3;
+    }
+    else if (_rotation == 3)
+    {
+        _one.first = _one.first + 1;
+        _one.second = _one.second - 1;
+
+        _three.first = _three.first - 1;
+        _three.second = _three.second + 1;
+
+        _four.first = _four.first - 2;
+        _four.second = _four.second + 2;
+
+        _rotation = 2;
+    }
+    else if (_rotation == 2)
+    {
+        _one.first = _one.first - 1;
+        _one.second = _one.second - 1;
+
+        _three.first = _three.first + 1;
+        _three.second = _three.second + 1;
+
+        _four.first = _four.first + 2;
+        _four.second = _four.second + 2;
+
+        _rotation = 1;
+    }
+    else if (_rotation == 1)
+    {
+        _one.first = _one.first - 1;
+        _one.second = _one.second + 1;
+
+        _three.first = _three.first + 1;
+        _three.second = _three.second - 1;
+
+        _four.first = _four.first + 2;
+        _four.second = _four.second - 2;
+
+        _rotation = 0;
+    }
+}

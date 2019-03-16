@@ -63,14 +63,3 @@ std::pair<int, int> & piece::get_four()
 {
     return _four;
 }
-
-// Check if the two pieces are the same
-// Checks all components of each object to see if the
-// values of each field are all the same
-bool piece::operator == (const piece & other)
-{
-    return _one == other._one && _two == other._two
-                              && _three == other._three
-                              && _four == other._four
-                              && _rotation == other._rotation;
-}

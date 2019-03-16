@@ -6,9 +6,10 @@
 
 class z : public piece
 {
-        public:
+    public:
 
-                z();
-                ~z();
-                void rotate();
+            z();
+            ~z();
+            void rotate();
+            void rotate_reverse();
 };

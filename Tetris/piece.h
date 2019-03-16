@@ -29,19 +29,18 @@ class piece
 
     public:
 
-        virtual void rotate() = 0;
-        virtual ~piece() {}
+        virtual void rotate() = 0;              // Interface for piece rotation
+        virtual void rotate_reverse() = 0;      // Interface for reversal rotation
+        virtual ~piece() {}                     // Destructor
 
-        void move_down();
+        void move_down();                       // Control for moving pieces in speicifed directions
         void move_left();
         void move_right();
 
-        int get_type();
+        int get_type();                         // Get piece type (int value)
 
-        std::pair<int, int> & get_one();
+        std::pair<int, int> & get_one();        // Control for getting individual x-y coordinates of piece
         std::pair<int, int> & get_two();
         std::pair<int, int> & get_three();
         std::pair<int, int> & get_four();
-
-        bool operator == (const piece & other);
 };

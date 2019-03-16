@@ -12,11 +12,14 @@ const int BOARD_WIDTH_OFFSET = 225;
 const int NEXT_PIECE_HEIGHT_OFFSET = 205;
 const int NEXT_PIECE_WIDTH_OFFSET = 530;
 
+const int DEFAULT_DROP_SPEED = 1000;
+const double SPEED_LEVEL_MULTIPLIER = 0.8;
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
-    _dropSpeed = 1000;
+    _dropSpeed = DEFAULT_DROP_SPEED;
     _timer = new QTimer(this);
     _pauseTimer = new QTimer(this);
 
@@ -92,6 +95,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 MainWindow::~MainWindow()
 {
     delete ui;
+
+    delete _pauseLabel;         // Free up pointers
+    delete _scoreLabel;
+    delete _nextPieceLabel;
+    delete _levelLabel;
+    delete _linesLabel;
+    delete _hiscoreLabel;
+    delete _controlsLabel;
+    delete _scoreValue;
+    delete _levelValue;
+    delete _linesValue;
+    delete _hiscoreValue;
 }
 
 void MainWindow::paintEvent(QPaintEvent * e)
@@ -110,7 +125,6 @@ void MainWindow::paintEvent(QPaintEvent * e)
 
     QRect controlsRectangle(NEXT_PIECE_WIDTH_OFFSET, NEXT_PIECE_HEIGHT_OFFSET + 205, 200, 290);
 
-
     // Draw Board
 
     blackPen.setWidth(1);
@@ -120,13 +134,13 @@ void MainWindow::paintEvent(QPaintEvent * e)
     {
         for (int x = 0; x < BOARD_WIDTH; x++)
         {
-            std::pair coordinate = std::make_pair(x, y);
+            int value = _game.get_board_position(x, y);
 
-            if (_game.check_board_position_filled(coordinate))
+            if (value != EMPTY_SPACE)
             {
                 QRect cell(BOARD_WIDTH_OFFSET + x * cellWidth, BOARD_HEIGHT_OFFSET + y * cellHeight, cellWidth, cellHeight);
 
-                switch(_game.get_board_position(x, y))
+                switch(value)
                 {
                     case 0: painter.fillRect(cell, QBrush("#00FFFF"));
                             break;
@@ -150,63 +164,66 @@ void MainWindow::paintEvent(QPaintEvent * e)
 
         // Draw next piece
 
-        int value = _game.get_next_piece()->get_type();
-
-        std::pair<int, int> one = _game.get_next_piece()->get_one();
-        QRect cellOne(NEXT_PIECE_WIDTH_OFFSET + one.first * cellWidth - 1 * cellWidth, NEXT_PIECE_HEIGHT_OFFSET + one.second * cellWidth + 2 * cellWidth, cellWidth, cellHeight);
-
-        std::pair<int, int> two = _game.get_next_piece()->get_two();
-        QRect cellTwo(NEXT_PIECE_WIDTH_OFFSET + two.first * cellWidth - 1 * cellWidth, NEXT_PIECE_HEIGHT_OFFSET + two.second * cellWidth + 2 * cellWidth, cellWidth, cellHeight);
-
-        std::pair<int, int> three = _game.get_next_piece()->get_three();
-        QRect cellThree(NEXT_PIECE_WIDTH_OFFSET + three.first * cellWidth - 1 * cellWidth, NEXT_PIECE_HEIGHT_OFFSET + three.second * cellWidth + 2 * cellWidth, cellWidth, cellHeight);
-
-        std::pair<int, int> four = _game.get_next_piece()->get_four();
-        QRect cellFour(NEXT_PIECE_WIDTH_OFFSET + four.first * cellWidth - 1 * cellWidth, NEXT_PIECE_HEIGHT_OFFSET + four.second * cellWidth + 2 * cellWidth, cellWidth, cellHeight);
-
-        switch(value)
+        if (!_game.game_over())
         {
-            case 0: painter.fillRect(cellOne, QBrush("#00FFFF"));
-                    painter.fillRect(cellTwo, QBrush("#00FFFF"));
-                    painter.fillRect(cellThree, QBrush("#00FFFF"));
-                    painter.fillRect(cellFour, QBrush("#00FFFF"));
-                    break;
-            case 1: painter.fillRect(cellOne, QBrush("#0000FF"));
-                    painter.fillRect(cellTwo, QBrush("#0000FF"));
-                    painter.fillRect(cellThree, QBrush("#0000FF"));
-                    painter.fillRect(cellFour, QBrush("#0000FF"));
-                    break;
-            case 2: painter.fillRect(cellOne, QBrush("#FFA500"));
-                    painter.fillRect(cellTwo, QBrush("#FFA500"));
-                    painter.fillRect(cellThree, QBrush("#FFA500"));
-                    painter.fillRect(cellFour, QBrush("#FFA500"));
-                    break;
-            case 3: painter.fillRect(cellOne, QBrush("#FFFF00"));
-                    painter.fillRect(cellTwo, QBrush("#FFFF00"));
-                    painter.fillRect(cellThree, QBrush("#FFFF00"));
-                    painter.fillRect(cellFour, QBrush("#FFFF00"));
-                    break;
-            case 4: painter.fillRect(cellOne, QBrush("#00FF00"));
-                    painter.fillRect(cellTwo, QBrush("#00FF00"));
-                    painter.fillRect(cellThree, QBrush("#00FF00"));
-                    painter.fillRect(cellFour, QBrush("#00FF00"));
-                    break;
-            case 5: painter.fillRect(cellOne, QBrush("#800080"));
-                    painter.fillRect(cellTwo, QBrush("#800080"));
-                    painter.fillRect(cellThree, QBrush("#800080"));
-                    painter.fillRect(cellFour, QBrush("#800080"));
-                    break;
-            case 6: painter.fillRect(cellOne, QBrush("#FF0000"));
-                    painter.fillRect(cellTwo, QBrush("#FF0000"));
-                    painter.fillRect(cellThree, QBrush("#FF0000"));
-                    painter.fillRect(cellFour, QBrush("#FF0000"));
-                    break;
-        }
+            int value = _game.get_next_piece()->get_type();
 
-        painter.drawRect(cellOne);
-        painter.drawRect(cellTwo);
-        painter.drawRect(cellThree);
-        painter.drawRect(cellFour);
+            std::pair<int, int> one = _game.get_next_piece()->get_one();
+            QRect cellOne(NEXT_PIECE_WIDTH_OFFSET + one.first * cellWidth - 1 * cellWidth, NEXT_PIECE_HEIGHT_OFFSET + one.second * cellWidth + 2 * cellWidth, cellWidth, cellHeight);
+
+            std::pair<int, int> two = _game.get_next_piece()->get_two();
+            QRect cellTwo(NEXT_PIECE_WIDTH_OFFSET + two.first * cellWidth - 1 * cellWidth, NEXT_PIECE_HEIGHT_OFFSET + two.second * cellWidth + 2 * cellWidth, cellWidth, cellHeight);
+
+            std::pair<int, int> three = _game.get_next_piece()->get_three();
+            QRect cellThree(NEXT_PIECE_WIDTH_OFFSET + three.first * cellWidth - 1 * cellWidth, NEXT_PIECE_HEIGHT_OFFSET + three.second * cellWidth + 2 * cellWidth, cellWidth, cellHeight);
+
+            std::pair<int, int> four = _game.get_next_piece()->get_four();
+            QRect cellFour(NEXT_PIECE_WIDTH_OFFSET + four.first * cellWidth - 1 * cellWidth, NEXT_PIECE_HEIGHT_OFFSET + four.second * cellWidth + 2 * cellWidth, cellWidth, cellHeight);
+
+            switch(value)
+            {
+                case 0: painter.fillRect(cellOne, QBrush("#00FFFF"));
+                        painter.fillRect(cellTwo, QBrush("#00FFFF"));
+                        painter.fillRect(cellThree, QBrush("#00FFFF"));
+                        painter.fillRect(cellFour, QBrush("#00FFFF"));
+                        break;
+                case 1: painter.fillRect(cellOne, QBrush("#0000FF"));
+                        painter.fillRect(cellTwo, QBrush("#0000FF"));
+                        painter.fillRect(cellThree, QBrush("#0000FF"));
+                        painter.fillRect(cellFour, QBrush("#0000FF"));
+                        break;
+                case 2: painter.fillRect(cellOne, QBrush("#FFA500"));
+                        painter.fillRect(cellTwo, QBrush("#FFA500"));
+                        painter.fillRect(cellThree, QBrush("#FFA500"));
+                        painter.fillRect(cellFour, QBrush("#FFA500"));
+                        break;
+                case 3: painter.fillRect(cellOne, QBrush("#FFFF00"));
+                        painter.fillRect(cellTwo, QBrush("#FFFF00"));
+                        painter.fillRect(cellThree, QBrush("#FFFF00"));
+                        painter.fillRect(cellFour, QBrush("#FFFF00"));
+                        break;
+                case 4: painter.fillRect(cellOne, QBrush("#00FF00"));
+                        painter.fillRect(cellTwo, QBrush("#00FF00"));
+                        painter.fillRect(cellThree, QBrush("#00FF00"));
+                        painter.fillRect(cellFour, QBrush("#00FF00"));
+                        break;
+                case 5: painter.fillRect(cellOne, QBrush("#800080"));
+                        painter.fillRect(cellTwo, QBrush("#800080"));
+                        painter.fillRect(cellThree, QBrush("#800080"));
+                        painter.fillRect(cellFour, QBrush("#800080"));
+                        break;
+                case 6: painter.fillRect(cellOne, QBrush("#FF0000"));
+                        painter.fillRect(cellTwo, QBrush("#FF0000"));
+                        painter.fillRect(cellThree, QBrush("#FF0000"));
+                        painter.fillRect(cellFour, QBrush("#FF0000"));
+                        break;
+            }
+
+            painter.drawRect(cellOne);
+            painter.drawRect(cellTwo);
+            painter.drawRect(cellThree);
+            painter.drawRect(cellFour);
+        }
     }
 
     // Draw Borders
@@ -240,12 +257,15 @@ void MainWindow::drop_piece()
         if (!_game.move_piece(DOWN))
         {
             int currentLevel = _game.get_level();
-            _game.lock_piece_and_replace();
-            int newLevel = _game.get_level();
 
-            if (currentLevel != newLevel)
+            if (_game.lock_piece_and_replace())
             {
-                increase_speed();
+                int newLevel = _game.get_level();
+
+                if (currentLevel != newLevel)
+                {
+                    increase_speed();
+                }
             }
         }
         this->repaint();
@@ -255,7 +275,7 @@ void MainWindow::drop_piece()
 // Increase speed of falling pieces
 void MainWindow::increase_speed()
 {
-    _dropSpeed *= 0.8;
+    _dropSpeed *= SPEED_LEVEL_MULTIPLIER;
     _timer->start(_dropSpeed);
 }
 
@@ -279,9 +299,7 @@ void MainWindow::unpause_timer()
 void MainWindow::finish_timer()
 {
     _pauseTimer->stop();
-
     drop_piece();
-
     _timer->start(_dropSpeed);
 }
 
@@ -307,12 +325,15 @@ void MainWindow::keyPressEvent(QKeyEvent * e)
                 case Qt::Key_Down:  if (!_game.move_piece(DOWN))
                                     {
                                         int currentLevel = _game.get_level();
-                                        _game.lock_piece_and_replace();
-                                        int newLevel = _game.get_level();
 
-                                        if (currentLevel != newLevel)
+                                        if (_game.lock_piece_and_replace())
                                         {
-                                            increase_speed();
+                                            int newLevel = _game.get_level();
+
+                                            if (currentLevel != newLevel)
+                                            {
+                                                increase_speed();
+                                            }
                                         }
                                     }
                                     break;
@@ -345,7 +366,7 @@ void MainWindow::keyPressEvent(QKeyEvent * e)
             QString qhiscore = QString::fromStdString(std::to_string(_game.get_hiscore()));
             _hiscoreValue->setText(qhiscore);
 
-            _dropSpeed = 1000;
+            _dropSpeed = DEFAULT_DROP_SPEED;
             _timer->start(_dropSpeed);
         }
         this->repaint();

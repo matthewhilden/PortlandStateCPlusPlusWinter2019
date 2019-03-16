@@ -21,56 +21,82 @@ board::board()
 
         for (int x = 0; x < BOARD_HEIGHT; x++)
         {
-            _board[y][x] = -1;
+            _board[y][x] = EMPTY_SPACE;
         }
     }
 }
 
-// Clear entire board contents
-// Reset the entire board to default values
-void board::clear_board()
+// Places the input piece at its starting position on the board
+// Position calculations are calculated by the respective piece classes
+// Returns true if the placement is valid, false if collision
+bool board::place_piece_at_start(piece * p)
 {
-    for (int y = 0; y < BOARD_WIDTH; y++)
+    std::pair<int, int> pointOne = p->get_one();        // Get piece x-y components
+    std::pair<int, int> pointTwo = p->get_two();
+    std::pair<int, int> pointThree = p->get_three();
+    std::pair<int, int> pointFour = p->get_four();
+
+    bool noCollision = false;
+
+    if (!check_position_filled(pointOne) && !check_position_filled(pointTwo)
+                                         && !check_position_filled(pointThree)
+                                         && !check_position_filled(pointFour))
     {
-        for (int x = 0; x < BOARD_HEIGHT; x++)
+        noCollision = true;	// Flagging if placing the piece does not result in a collision
+    }
+
+    int value = p->get_type();
+
+    fill_position(pointOne, value);         // Update board positions with piece value
+    fill_position(pointTwo, value);
+    fill_position(pointThree, value);
+    fill_position(pointFour, value);
+
+    return noCollision;
+}
+
+// Check if specified point (x-y coordinate) is filled
+// Returns true if filled, false otherwise
+// Returns false if the point is not within the four board walls.
+bool board::check_position_filled(std::pair<int, int> & point)
+{
+    int first = point.first;
+    int second = point.second;
+
+    if (first >= 0 && first < BOARD_WIDTH && second >= 0 && second < BOARD_HEIGHT)   // Check inside bounds of board
+    {
+        if (_board[first][second] != EMPTY_SPACE)
         {
-            _board[y][x] = -1;
+            return true;
         }
     }
+
+    return false;
+}
+
+// Check if the entire row at the input position is filled
+// This is used for row shifting full rows when placing pieces
+// Return true if the specified row is completely filled, false otherwise
+bool board::check_row_filled(int row)
+{
+    if (row < 0 || row >= BOARD_HEIGHT)
+    {
+        return false;   // Outside board limits
+    }
+    for (int x = 0; x < BOARD_WIDTH; x++)
+    {
+        if (_board[x][row] == EMPTY_SPACE)
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 // Get board position at specified x-y coordinate
 int board::get_board_position(int row, int col)
 {
     return _board[row][col];
-}
-
-// Places the input piece at its starting position on the board
-// Returns true if the placement is valid, false if collision
-bool board::place_piece_at_start(piece * p)
-{
-    std::pair<int, int> pointOne = p->get_one();
-    std::pair<int, int> pointTwo = p->get_two();
-    std::pair<int, int> pointThree = p->get_three();
-    std::pair<int, int> pointFour = p->get_four();
-
-    bool flag = false;
-
-    if (!check_position_filled(pointOne) && !check_position_filled(pointTwo)
-                         && !check_position_filled(pointThree)
-                         && !check_position_filled(pointFour))
-    {
-        flag = true;	// No collision
-    }
-
-    int value = p->get_type();
-
-    fill_position(pointOne, value);
-    fill_position(pointTwo, value);
-    fill_position(pointThree, value);
-    fill_position(pointFour, value);
-
-    return flag;
 }
 
 // Updates the position of the board as filled
@@ -95,57 +121,9 @@ void board::fill_position(std::pair<int, int> & point, int value)
 // Will not update pieces that are oustide board range
 void board::unfill_position(std::pair<int, int> & point)
 {
-    int first = point.first;
-    int second = point.second;
-
-    if (first >= 0 && first < BOARD_WIDTH)
-    {
-        if (second >= 0 && second < BOARD_HEIGHT)
-        {
-            _board[first][second] = -1;
-        }
-    }
+    fill_position(point, EMPTY_SPACE);      // Call fill position with default value
 }
 
-// Check if specified point (x-y coordinate) is filled
-// Returns true if filled, false otherwise
-// Returns false if the point is not within the four board walls.
-bool board::check_position_filled(std::pair<int, int> & point)
-{
-    int first = point.first;
-    int second = point.second;
-
-    if ((first < 0 || first >= BOARD_WIDTH) || (second < 0 || second >= BOARD_HEIGHT))
-    {
-        // Throw Error Here ...
-
-        return false;
-    }
-    else
-    {
-        if (_board[first][second] != -1)
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-// Check if the entire row at the input position is filled
-// This is used for row shifting full rows when placing pieces
-// Return true if the specified row is completely filled, false otherwise
-bool board::check_row_filled(int row)
-{
-    for (int x = 0; x < BOARD_WIDTH; x++)
-    {
-        if (_board[x][row] == -1)
-        {
-            return false;
-        }
-    }
-    return true;
-}
 
 // Shifts the board down one space to the current row
 // Fills the row at the top of the board as empty
@@ -161,6 +139,19 @@ void board::shift_down(int row)
 
     for (int x = 0; x < BOARD_WIDTH; x++)
     {
-        _board[x][0] = -1;
+        _board[x][0] = EMPTY_SPACE;
+    }
+}
+
+// Clear entire board contents
+// Reset the entire board to default values
+void board::clear_board()
+{
+    for (int y = 0; y < BOARD_WIDTH; y++)
+    {
+        for (int x = 0; x < BOARD_HEIGHT; x++)
+        {
+            _board[y][x] = EMPTY_SPACE;
+        }
     }
 }

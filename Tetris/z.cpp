@@ -78,3 +78,55 @@ void z::rotate()
         _rotation = 0;
     }
 }
+// Rotate the piece 90 degrees counterclockwise around the pivot point
+void z::rotate_reverse()
+{
+    if (_rotation == 0)
+    {
+        _one.second = _one.second + 2;
+
+        _two.first = _two.first - 1;
+        _two.second = _two.second + 1;
+
+        _four.first = _four.first - 1;
+        _four.second = _four.second - 1;
+
+        _rotation = 3;
+    }
+    else if (_rotation == 3)
+    {
+        _one.first = _one.first + 2;
+
+        _two.first = _two.first + 1;
+        _two.second = _two.second + 1;
+
+        _four.first = _four.first - 1;
+        _four.second = _four.second + 1;
+
+        _rotation = 2;
+    }
+    else if (_rotation == 2)
+    {
+        _one.second = _one.second - 2;
+
+        _two.first = _two.first + 1;
+        _two.second = _two.second - 1;
+
+        _four.first = _four.first + 1;
+        _four.second = _four.second + 1;
+
+        _rotation = 1;
+    }
+    else if (_rotation == 1)
+    {
+        _one.first = _one.first - 2;
+
+        _two.first = _two.first - 1;
+        _two.second = _two.second - 1;
+
+        _four.first = _four.first + 1;
+        _four.second = _four.second - 1;
+
+        _rotation = 0;
+    }
+}

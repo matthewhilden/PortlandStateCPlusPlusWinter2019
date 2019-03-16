@@ -10,9 +10,17 @@ class game
 {
     private:
 
-        // Create a list of pieces stored for counting statistics, etc.
-        // Create a way to track current score and hiscores.
-        // Output to a file the hiscores and read in/out on new game.
+        /*
+         *  A Tetris game consists of a board and two pieces, a current piece (in play), and
+         *  a secondary piece that represents the next piece for play. A game repeatedly shifts
+         *  the current piece down in the game board, while allowing the user to manipulate the position
+         *  of the piece through 90-degree rotations and left/right/downward (cartesian) shifts.
+         *  Once the piece can no longer shift vertically (or the player downshifts the piece), the piece
+         *  is locked into position, and the secodnary piece is place on it's specified starting position,
+         *  and into play. The game continues until placing a new piece causes a collision, or a piece locks
+         *  in a position where any of its contents are outside of the board boundaries. The game maintains
+         *  control of user score, number of lines cleared, hiscore, and state for pausing and game over.
+         */
 
         bool _paused;
         bool _gameOver;
@@ -28,38 +36,33 @@ class game
 
     public:
 
-        game();
-        ~game();
+        game();         // Default constructor
+        ~game();        // Default destructor
 
-        bool toggle_pause();
-        bool paused();
-        void reset_game();
+        int get_level();                            // Return current level
+        int get_lines();                            // Return number of cleared lines
+        int get_score();                            // Return current score
+        int get_hiscore();                          // Return current hiscore
+        int get_board_position(int row, int col);   // Return value at specifed board position (x-y coordinate)
 
-        int get_level();
-        int get_lines();
-        int get_score();
-        int get_hiscore();
+        bool inside_bucket(std::pair<int, int> & point);        // Check if within left, right, down boundaries
+        bool check_movement_valid(int direction);               // Check if specified movement is valid
+        bool check_rotation_valid();                            // Check if current piece can rotate
+        bool move_piece(int direction);                         // Apply movement to current piece
+        bool rotate_piece();                                    // Rotate current piece 90-degrees clockwise
+        bool check_clear_rows();                                // Check and clear full rows on piece locking
+        bool lock_piece_and_replace();                          // Lock current piece and switch to new piece, generating new secondary piece
+        bool paused();                                          // Check if game is paused
+        bool game_over();                                       // Check if game is over
 
-        bool inside_bucket(std::pair<int, int> & point);                // Check if within left, right, down boundaries
-        bool check_board_position_filled(std::pair<int, int> & point);  // Get board position value
+        void remove_current_piece();                    // Remove current piece from board
+        void place_current_piece();                     // Place current piece on board
+        void toggle_pause();                            // Toggle pause game state
+        void update_score_level(int linesCleared);      // Update the score and level
+        void reset_game();                              // Reset game to starting state
 
-        bool check_movement_valid(int direction);       // Check if movement or rotation is valid
-        bool check_rotation_valid();
+        piece * generate_piece();                       // Generate a new piece
+        piece * generate_piece(piece * previous);       // Generate a secondary piece (using previous data)
+        piece * get_next_piece();                       // Get secondary piece
 
-        bool move_piece(int direction);			// Apply movement to current piece
-        bool rotate_piece();
-
-        void remove_current_piece();			// Updating piece location in board
-        void place_current_piece();
-
-        void check_clear_rows();
-        void lock_piece_and_replace();          // Switch to next piece in queue
-
-        bool game_over();
-
-        piece * generate_piece();
-        piece * generate_piece(piece * previous);
-        piece * get_next_piece();
-
-        int get_board_position(int row, int col);
 };
